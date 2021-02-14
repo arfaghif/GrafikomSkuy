@@ -82,8 +82,8 @@ const width = 250;
 const height = 250;
 
 // Random points
-const points = Array.from({ length: 20 }, () =>
-  ({ x: Math.random(), y: Math.random() })
+const points = Array.from({ length: 7 }, () =>
+  ({ x: Math.random() * 2 - 1, y: Math.random() * 2 - 1 })
 );
 
 // Get the center (mean value) using reduce
@@ -109,7 +109,10 @@ for (var point in pointsSorted) {
   polygonData.push(pointsSorted[point].y)
 }
 console.log(polygonData)
-var indices = [[0,1,2],[0,2,3]]
+var indices = []
+for (var i = 0; i < pointsSorted.length - 2; i++) {
+  indices.push([0, i+1, i+2])
+}
 for (var index in indices) {
   triangleData = []
   triangleData.push(polygonData[indices[index][0] * 2])

@@ -205,7 +205,7 @@
                   // console.log("x = "+i);
                   // console.log("y = " +y);
                   let newDist = roundToTwoDecimals(distance(x1,y1,i,y));
-                  if (newDist == dist) {
+                  if (Math.abs(newDist - dist) <= 1e-6) {
                      newPoint.push(i);
                      newPoint.push(y);
                      break;
