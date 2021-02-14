@@ -1,5 +1,7 @@
 import { multiplyMatrix } from './utils/matrix'
 import { fetchShader } from './loaders/shader'
+import GLObject from './GLObject'
+
 
 var canvas = document.getElementById('content') as HTMLCanvasElement
 canvas.width = 800
@@ -61,6 +63,13 @@ async function main() {
         gl.attachShader(shaderProgram, vertShader)
         gl.attachShader(shaderProgram, fragShader)
         gl.linkProgram(shaderProgram)
+        const glObject = new GLObject(0, shaderProgram, gl)
+        glObject.setVertexArray(triangleData)
+        glObject.setPosition(0,0)
+        glObject.setRotation(0)
+        glObject.setScale(1,1)
+        glObject.bind()
+        glObject.draw()
         var vertBuf = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf)
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleData), gl.STATIC_DRAW)
