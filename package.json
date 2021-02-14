@@ -1,0 +1,15 @@
+{
+  "name": "GrafikomSkuy",
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build"
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/arfaghif/GrafikomSkuy.git",
+  "author": "moondemon68 <moondemon68@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "snowpack": "^3.0.11"
+  }
+}
