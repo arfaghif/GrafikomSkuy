@@ -1,6 +1,7 @@
 import { multiplyMatrix } from './utils/matrix'
+import { fetchShader } from './loaders/shader'
 
-var canvas = document.getElementById('webgl-app') as HTMLCanvasElement
+var canvas = document.getElementById('content') as HTMLCanvasElement
 canvas.width = 800
 canvas.height = 600
 var gl = canvas.getContext('webgl2')
@@ -19,8 +20,8 @@ async function main() {
         ]
 
 
-        var vert = document.getElementById('vert').innerText
-        var frag = document.getElementById('frag').innerText
+        var vert = await fetchShader('draw-vert.glsl')
+        var frag = await fetchShader('draw-frag.glsl')
         console.log(vert);
         const [u,v] = [-0.12,0];
         const translateMat = [
