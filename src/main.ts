@@ -16,7 +16,7 @@ var objects = [
     {
         type: 'square',
         points: [
-            -10, -10,
+            30, 30,
             10, 10
         ]
     },
