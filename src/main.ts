@@ -31,10 +31,20 @@ async function main() {
     gl.clearColor(1,1,1,1)
     gl.clear(gl.COLOR_BUFFER_BIT)
     console.log('initialized')
+    var lineData = [
+        400, 400,
+        500, 500,
+    ]
+
+    var squareData = [
+        200, 400,
+        400, 200
+    ]
+
     var triangleData = [
-        400, 400.0,
-        400.0, 200.0,
-        200.0, 400.0
+        400, 400,
+        400, 200,
+        200, 400
     ]
 
 
@@ -107,25 +117,33 @@ async function main() {
     gl.uniform2f(u_resolution, gl.canvas.width, gl.canvas.height)
 
     // GLObject instantiation
-    const glObject = new GLObject(0, shaderProgram, gl)
-    glObject.setVertexArray(triangleData)
+    const glObject = new GLObject(0, shaderProgram, gl, "square")
+    glObject.setVertexArray(squareData)
     glObject.setPosition(0,0)
     glObject.setRotation(0)
     glObject.setScale(1,1)
     glObject.bind()
 
 
-    const glObject2 = new GLObject(1, shaderProgram, gl)
-    glObject2.setVertexArray(triangleData)
-    glObject2.setPosition(600, 400)
+    const glObject2 = new GLObject(1, shaderProgram, gl, "line")
+    glObject2.setVertexArray(squareData)
+    glObject2.setPosition(700, 500)
     glObject2.setRotation(180)
     glObject2.setScale(1,1)
     glObject2.bind()
+
+    // const glObject3 = new GLObject(0, shaderProgram, gl, "triangle")
+    // glObject3.setVertexArray(triangleData)
+    // glObject3.setPosition(0,0)
+    // glObject3.setRotation(0)
+    // glObject3.setScale(1,1)
+    // glObject3.bind()
 
 
     const renderer = new Renderer()
     renderer.addObject(glObject)
     renderer.addObject(glObject2)
+    // renderer.addObject(glObject3)
     
     // defining texture buffer    
     const texBuf = gl.createTexture()
@@ -178,7 +196,7 @@ async function main() {
         // draw the actual objects
         gl.useProgram(shaderProgram)
         renderer.render()
-        requestAnimationFrame(render)
+        // requestAnimationFrame(render)
     }
     requestAnimationFrame(render)
     // renderer.render()

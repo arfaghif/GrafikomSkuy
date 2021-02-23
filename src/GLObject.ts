@@ -10,17 +10,23 @@ class GLObject {
   public scale: [number, number];
   public gl: WebGL2RenderingContext;
   public projectionMat: number[];
+  public type: string;
 
-
-  constructor(id: number, shader: WebGLProgram, gl: WebGL2RenderingContext) {
+  constructor(id: number, shader: WebGLProgram, gl: WebGL2RenderingContext, type: string) {
       this.id = id;
       this.shader = shader;
       this.gl = gl;
-
+      this.type = type;
   }
   setVertexArray(va: number[]) {
+    if (this.type === "line") {
+        this.va = va;
+    } else if (this.type === "square") {
+        this.va = this.getSquareVa(va[0], va[1], va[2], va[3]);
+    } else if (this.type === "triangle") {
         this.va = va;
     }
+}
 
 
     setPosition(x: number, y: number) {
@@ -74,6 +80,9 @@ class GLObject {
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.va), gl.STATIC_DRAW)
   }
 
+    getSquareVa(x1,y1,x2,y2){
+        return [x1,y1,x1,y2,x2,y2,x1,y1,x2,y1,x2,y2,]
+    }
 
   draw() {
       const gl = this.gl
@@ -85,7 +94,13 @@ class GLObject {
       gl.uniformMatrix3fv(uniformPos, false, this.projectionMat)
       gl.uniform4fv(uniformCol, [1.0, 0.0, 0.0, 1.0])
       gl.enableVertexAttribArray(vertexPos)
-      gl.drawArrays(gl.TRIANGLES, 0, this.va.length/2)
+      if (this.type === "triangle") {
+          gl.drawArrays(gl.TRIANGLES, 0, this.va.length/2)
+      } else if (this.type === "line") {
+          gl.drawArrays(gl.LINES, 0, this.va.length/2)
+      } else if (this.type === "square") {
+          gl.drawArrays(gl.TRIANGLES, 0, 6)
+      }
   }
 
   drawSelect(selectProgram: WebGLProgram) {
@@ -112,7 +127,13 @@ class GLObject {
         ((id >> 24) & 0xFF) / 0xFF,
     ]
     gl.uniform4fv(uniformCol, uniformId)
-    gl.drawArrays(gl.TRIANGLES, 0, this.va.length/2)
+    if (this.type === "triangle") {
+        gl.drawArrays(gl.TRIANGLES, 0, this.va.length/2)
+    } else if (this.type === "line") {
+        gl.drawArrays(gl.LINES, 0, this.va.length/2)
+    } else if (this.type === "square") {
+        gl.drawArrays(gl.TRIANGLES, 0, 6)
+    }
 }
 
 }
