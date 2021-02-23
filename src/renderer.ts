@@ -30,6 +30,12 @@ class Renderer {
             obj.draw()
         }
     }
+
+    renderTex(selectProgram: WebGLProgram) {
+        for (const obj of this.objectList) {
+            obj.drawSelect(selectProgram)
+        }
+    }
 }
 
 

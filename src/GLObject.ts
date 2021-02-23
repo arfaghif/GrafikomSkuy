@@ -87,7 +87,33 @@ class GLObject {
       gl.enableVertexAttribArray(vertexPos)
       gl.drawArrays(gl.TRIANGLES, 0, this.va.length/2)
   }
-// ...
+
+  drawSelect(selectProgram: WebGLProgram) {
+    const gl = this.gl
+    const id = this.id
+    gl.useProgram(this.shader)
+    var vertexPos = gl.getAttribLocation(this.shader, 'a_pos')
+    var uniformCol = gl.getUniformLocation(this.shader, 'u_fragColor')
+    var uniformPos = gl.getUniformLocation(this.shader, 'u_proj_mat')
+    gl.uniformMatrix3fv(uniformPos, false, this.projectionMat)
+    gl.vertexAttribPointer(
+        vertexPos,
+        2, // it's 2 dimensional
+        gl.FLOAT,
+        false,
+        0,
+        0
+    )
+    gl.enableVertexAttribArray(vertexPos)
+    const uniformId = [
+        ((id >> 0) & 0xFF) / 0xFF,
+        ((id >> 8) & 0xFF) / 0xFF,
+        ((id >> 16) & 0xFF) / 0xFF,
+        ((id >> 24) & 0xFF) / 0xFF,
+    ]
+    gl.uniform4fv(uniformCol, uniformId)
+    gl.drawArrays(gl.TRIANGLES, 0, this.va.length/2)
+}
 
 }
 
