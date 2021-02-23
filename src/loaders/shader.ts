@@ -17,6 +17,11 @@ export async function fetchShader(source: string) {
     return shader
 }
 
+export async function fetchSavedData(source: string) {
+    const objects = await fetch('/objects/' + source).then(res => res.text())
+    return objects
+}
+
 export async function initShaderFiles(gl: WebGL2RenderingContext, vert: string, frag: string) {
     const vs = await loadShader(gl, gl.VERTEX_SHADER, vert)
     const fs = await loadShader(gl, gl.FRAGMENT_SHADER, frag)

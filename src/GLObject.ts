@@ -82,8 +82,13 @@ class GLObject {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.va), gl.STATIC_DRAW)
     }
     
-    getSquareVa(x1,y1,x2,y2){
-        return [x1,y1,x1,y2,x2,y2,x1,y1,x2,y1,x2,y2,]
+    getSquareVa(u1, v1, u2, v2){
+        var dist = Math.max(u2 - u1, v2 - v1)
+        var x1 = u1 - dist
+        var y1 = v1 - dist
+        var x2 = u1 + dist
+        var y2 = v1 + dist
+        return [x1,y1,x1,y2,x2,y2,x1,y1,x2,y1,x2,y2]
     }
     
     draw() {

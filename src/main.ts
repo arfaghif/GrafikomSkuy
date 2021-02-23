@@ -1,5 +1,5 @@
 import { multiplyMatrix } from './utils/matrix'
-import { fetchShader } from './loaders/shader'
+import { fetchShader, fetchSavedData } from './loaders/shader'
 import GLObject from './GLObject'
 import Renderer from './renderer'
 
@@ -7,22 +7,122 @@ var canvas = document.getElementById('content') as HTMLCanvasElement
 canvas.width = 800
 canvas.height = 600
 var gl = canvas.getContext('webgl2')
+var renderer;
 
-let appState = {
-    mousePos : {
-        x: 0,
-        y: 0
+var points = []
+var pressedKeys = {}
+var drawingType = ""
+var objects = [
+    {
+        type: 'square',
+        points: [
+            -10, -10,
+            10, 10
+        ]
+    },
+    {
+        type: 'line',
+        points: [
+            200, 200,
+            220, 220,
+        ]
+    }
+]
+
+function changeType(type) {
+    drawingType = type;
+    points = []
+    console.log(drawingType)
+}
+
+document.getElementById("lineButton").onclick = function() {
+    changeType("line")
+}
+document.getElementById("squareButton").onclick = function() {
+    changeType("square")
+}
+document.getElementById("polygonButton").onclick = function() {
+    changeType("polygon")
+}
+document.getElementById("clearButton").onclick = function() {
+    objects = []
+    renderer.clearObject()
+    main()
+}
+document.getElementById("saveButton").onclick = function() {
+    let data = JSON.stringify(objects);
+    document.getElementById("saveString").innerText = data
+
+}
+document.getElementById("loadButton").onclick = async function() {
+    let objectString = await fetchSavedData('obj1.json')
+    console.log(objectString)
+    objects = JSON.parse(objectString)
+    main()
+}
+
+function inputGLCoordinates(event, canvas) {
+    var x = event.clientX,
+    y = event.clientY,
+    midX = canvas.width/2,
+    midY = canvas.height/2,
+    rect = event.target.getBoundingClientRect();
+    x = ((x - rect.left) - midX) / midX;
+    y = (midY - (y - rect.top)) / midY;
+    return {x:x,y:y};
+}
+
+function inputCanvasCoordinates(event, canvas) {
+    var x = event.clientX,
+    y = event.clientY,
+    rect = event.target.getBoundingClientRect();
+    x = x - rect.left;
+    y = rect.bottom - y;
+    return {x:x,y:y};
+}
+
+function onmousedown(event) {
+    if (pressedKeys[16]) {
+        var point = inputCanvasCoordinates(event, canvas);
+        var pixels = new Uint8Array(4);
+        gl.readPixels(point.x, point.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+        console.log(point.x, point.y);
+    }
+    else {
+        var point = inputCanvasCoordinates(event, canvas);
+        points.push(point.x)
+        points.push(point.y)
+        console.log(points)
+        if (drawingType === "line" && points.length == 4) {
+            objects.push({
+                type: 'line',
+                points: points
+            })
+            points = []
+        } else if (drawingType === "square" && points.length == 4)  {
+            objects.push({
+                type: 'square',
+                points: points
+            })
+            points = []
+        }
+        console.log(objects)
+        main()
     }
 }
+
+function keyDown(event) {
+    pressedKeys[event.keyCode] = true;
+}
+
+function keyUp(event) {
+    pressedKeys[event.keyCode] = false;
+}
+
 async function main() {
-    canvas.addEventListener('mousemove', (event) => {
-        const bound = canvas.getBoundingClientRect()
-        const res = {
-            x: event.clientX - bound.left,
-            y: event.clientY - bound.top
-        }
-        appState.mousePos = res
-    }, false)
+    canvas.addEventListener('mousedown', onmousedown);
+    document.onkeydown = keyDown;
+    document.onkeyup = keyUp;
     
     if (!gl) {
         alert('Your browser does not support WebGL')
@@ -31,21 +131,6 @@ async function main() {
     gl.clearColor(1,1,1,1)
     gl.clear(gl.COLOR_BUFFER_BIT)
     console.log('initialized')
-    var lineData = [
-        400, 400,
-        500, 500,
-    ]
-    
-    var squareData = [
-        -100, -100,
-        100, 100
-    ]
-    
-    var triangleData = [
-        400, 400,
-        400, 200,
-        200, 400
-    ]
     
     
     var vert = await fetchShader('draw-vert.glsl')
@@ -75,40 +160,19 @@ async function main() {
     gl.uniform2f(u_resolution, gl.canvas.width, gl.canvas.height)
     
     // GLObject instantiation
-    const glObject = new GLObject(0, shaderProgram, gl, "square")
-    glObject.setVertexArray(squareData)
-    glObject.setPosition(300,300)
-    glObject.setRotation(0)
-    glObject.setScale(1,1)
-    glObject.bind()
-    
-    
-    const glObject2 = new GLObject(1, shaderProgram, gl, "line")
-    glObject2.setVertexArray(squareData)
-    glObject2.setPosition(300, 300)
-    glObject2.setRotation(180)
-    glObject2.setScale(2, 2)
-    glObject2.bind()
-    
-    // const glObject3 = new GLObject(0, shaderProgram, gl, "triangle")
-    // glObject3.setVertexArray(triangleData)
-    // glObject3.setPosition(0,0)
-    // glObject3.setRotation(0)
-    // glObject3.setScale(1,1)
-    // glObject3.bind()
-    
-    
-    const renderer = new Renderer()
-    renderer.addObject(glObject)
-    renderer.addObject(glObject2)
-    // renderer.addObject(glObject3)
-    
-    // using the texture and depth buffer with frame buffer
-    function render(now: number) {
-        renderer.render()
-        requestAnimationFrame(render)
-    }
-    requestAnimationFrame(render)
+    renderer = new Renderer()
+    console.log(objects)
+    objects.forEach(object => {
+        const glObject = new GLObject(0, shaderProgram, gl, object.type)
+        glObject.setVertexArray(object.points)
+        glObject.setPosition(0, 0)
+        glObject.setRotation(0)
+        glObject.setScale(1,1)
+        glObject.bind()
+        renderer.addObject(glObject)
+    });
+
+    renderer.render()
 }
 
 main()
