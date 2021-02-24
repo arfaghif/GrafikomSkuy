@@ -100,7 +100,7 @@ class GLObject {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo)
         gl.vertexAttribPointer(vertexPos, 2, gl.FLOAT, false, 0, 0)
         gl.uniformMatrix3fv(uniformPos, false, this.projectionMat)
-        gl.uniform4fv(uniformCol, [1.0, 0.0, 0.0, 1.0])
+        gl.uniform4fv(uniformCol, [1.0, 1.0, 0.0, 1.0]) // for coloring
         gl.enableVertexAttribArray(vertexPos)
         if (this.type === "triangle") {
             gl.drawArrays(gl.TRIANGLES, 0, 2)
