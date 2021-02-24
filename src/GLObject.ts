@@ -20,7 +20,7 @@ class GLObject {
         this.type = type;
     }
     setVertexArray(va: number[]) {
-        if (this.type === "line") {
+        if (this.type === "line" || this.type === "polygon") {
             this.va = va;
         } else if (this.type === "square") {
             this.va = this.getSquareVa(va[0], va[1], va[2], va[3]);
@@ -100,7 +100,7 @@ class GLObject {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo)
         gl.vertexAttribPointer(vertexPos, 2, gl.FLOAT, false, 0, 0)
         gl.uniformMatrix3fv(uniformPos, false, this.projectionMat)
-        gl.uniform4fv(uniformCol, [1.0, 1.0, 0.0, 1.0]) // for coloring
+        gl.uniform4fv(uniformCol, [1.0, 0.0, 0.0, 1.0]) // for coloring
         gl.enableVertexAttribArray(vertexPos)
         if (this.type === "triangle") {
             gl.drawArrays(gl.TRIANGLES, 0, 2)
@@ -108,6 +108,8 @@ class GLObject {
             gl.drawArrays(gl.LINES, 0, 2)
         } else if (this.type === "square") {
             gl.drawArrays(gl.TRIANGLES, 0, 6)
+        } else if (this.type === "polygon") {
+            gl.drawArrays(gl.TRIANGLE_FAN, 0, this.va.length / 2)
         }
     }
     

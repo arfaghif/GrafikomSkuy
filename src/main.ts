@@ -51,13 +51,16 @@ document.getElementById("clearButton").onclick = function() {
 }
 document.getElementById("saveButton").onclick = function() {
     let data = JSON.stringify(objects);
-    document.getElementById("saveString").innerText = data
+    document.getElementById("textarea").innerText = data
 
 }
-document.getElementById("loadButton").onclick = async function() {
-    let objectString = await fetchSavedData('obj1.json')
-    console.log(objectString)
-    objects = JSON.parse(objectString)
+document.getElementById("loadButton").onclick = function() {
+    let objectString = document.getElementById("textarea").value
+    try {
+        objects = JSON.parse(objectString)
+    } catch {
+        alert('Failed to parse JSON')
+    }
     main()
 }
 
