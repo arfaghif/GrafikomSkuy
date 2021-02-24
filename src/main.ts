@@ -16,24 +16,7 @@ var points = []
 var pressedKeys = {}
 var drawingType = ""
 var currentColor = [0, 0, 0]
-var objects = [
-    {
-        type: 'square',
-        points: [
-            30, 30,
-            10, 10
-        ],
-        color: [255, 0, 0, 255]
-    },
-    {
-        type: 'line',
-        points: [
-            200, 200,
-            220, 220,
-        ],
-        color: [255, 0, 255, 255]
-    }
-]
+var objects = []
 
 function changeType(type) {
     drawingType = type;
