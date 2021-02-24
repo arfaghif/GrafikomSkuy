@@ -1,5 +1,5 @@
-import { multiplyMatrix } from './utils/matrix'
-import { fetchShader, fetchSavedData } from './loaders/shader'
+import { isInside } from './utils/polygon'
+import { fetchShader } from './loaders/shader'
 import GLObject from './GLObject'
 import Renderer from './renderer'
 
@@ -87,7 +87,25 @@ function inputCanvasCoordinates(event, canvas) {
 
 function onmousedown(event) {
     var point = inputCanvasCoordinates(event, canvas);
-    if (pressedKeys[16]) {  // hold shift to edit
+    if (pressedKeys[17]) { // hold control to change color
+        for (var i = 0; i < objects.length; i++) {
+            // change color
+            if (objects[i].type === "square") {
+                var dist = Math.max(Math.abs(objects[i].points[2] - objects[i].points[0]), Math.abs(objects[i].points[3] - objects[i].points[1]))
+                var x1 = objects[i].points[0] - dist
+                var y1 = objects[i].points[1] - dist
+                var x2 = objects[i].points[0] + dist
+                var y2 = objects[i].points[1] + dist
+                if (isInside([x1, y1, x1, y2, x2, y2, x2, y1], [point.x, point.y])) {
+                    objects[i].color = [currentColor[0], currentColor[1], currentColor[2], 255]
+                }
+            } else {
+                if (isInside(objects[i].points, [point.x, point.y])) {
+                    objects[i].color = [currentColor[0], currentColor[1], currentColor[2], 255]
+                }
+            }
+        }
+    } else if (pressedKeys[16]) {  // hold shift to edit
         for (var i = 0; i < objects.length; i++) {
             if (objects[i].type === "polygon" || objects[i].type === "line") {
                 for (var j = 0; j < objects[i].points.length; j += 2) {
@@ -97,7 +115,7 @@ function onmousedown(event) {
                         break
                     }
                 }
-            } else {
+            } else {    // square
                 var dist = Math.max(Math.abs(objects[i].points[2] - objects[i].points[0]), Math.abs(objects[i].points[3] - objects[i].points[1]))
                 var x1 = objects[i].points[0] - dist
                 var y1 = objects[i].points[1] - dist
@@ -123,8 +141,7 @@ function onmousedown(event) {
             }
             if (selectedPoint[0] != -1) break
         }
-    }
-    if (selectedPoint[0] == -1) {
+    } else if (selectedPoint[0] == -1) {
         points.push(point.x)
         points.push(point.y)
         if (drawingType === "line" && points.length == 4) {
@@ -152,8 +169,8 @@ function onmousedown(event) {
             points = []
         }
         // console.log(objects)
-        main()
     }
+    main()
     mousePressed = true
 }
 
