@@ -83,7 +83,7 @@ class GLObject {
     }
     
     getSquareVa(u1, v1, u2, v2){
-        var dist = Math.max(u2 - u1, v2 - v1)
+        var dist = Math.max(Math.abs(u2 - u1), Math.abs(v2 - v1))
         var x1 = u1 - dist
         var y1 = v1 - dist
         var x2 = u1 + dist
