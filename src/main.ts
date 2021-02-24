@@ -10,6 +10,8 @@ var gl = canvas.getContext('webgl2')
 var renderer;
 var pixelTolerance = 5
 
+var mousePressed = false
+var selectedPoint = [-1, -1]    // object index, point index * 2
 var points = []
 var pressedKeys = {}
 var drawingType = ""
@@ -78,13 +80,17 @@ function inputCanvasCoordinates(event, canvas) {
 }
 
 function onmousedown(event) {
-    if (pressedKeys[16]) {
-        var point = inputCanvasCoordinates(event, canvas);
-        var pixels = new Uint8Array(4);
-        gl.readPixels(point.x, point.y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-        console.log(point.x, point.y);
+    var point = inputCanvasCoordinates(event, canvas);
+    for (var i = 0; i < objects.length; i++) {
+        for (var j = 0; j < objects[i].points.length; j += 2) {
+            if (Math.abs(objects[i].points[j] - point.x) <= pixelTolerance && Math.abs(objects[i].points[j + 1] - point.y) <= pixelTolerance) {
+                selectedPoint = [i, j]
+                break
+            }
+        }
+        if (selectedPoint[0] != -1) break
     }
-    else {
+    if (selectedPoint[0] == -1) {
         var point = inputCanvasCoordinates(event, canvas);
         points.push(point.x)
         points.push(point.y)
@@ -102,6 +108,8 @@ function onmousedown(event) {
             })
             points = []
         } else if (drawingType === "polygon" && points.length > 2 && Math.abs(points[0] - points[points.length - 2]) <= pixelTolerance && Math.abs(points[1] - points[points.length - 1]) <= pixelTolerance) { // first === last point
+            points.pop()
+            points.pop()    // remove 2 last points
             objects.push({
                 type: 'polygon',
                 points: points
@@ -109,6 +117,22 @@ function onmousedown(event) {
             points = []
         }
         console.log(objects)
+        main()
+    }
+    mousePressed = true
+}
+
+function onmouseup(event) {
+    mousePressed = false
+    selectedPoint = [-1, -1]
+}
+
+function onmousemove(event) {
+    if (mousePressed == true && selectedPoint[0] != -1) {   // if a point is selected
+        var point = inputCanvasCoordinates(event, canvas);
+        objects[selectedPoint[0]].points[selectedPoint[1]] = point.x
+        objects[selectedPoint[0]].points[selectedPoint[1] + 1] = point.y
+        
         main()
     }
 }
@@ -123,6 +147,8 @@ function keyUp(event) {
 
 async function main() {
     canvas.addEventListener('mousedown', onmousedown);
+    canvas.addEventListener('mousemove', onmousemove);
+    canvas.addEventListener('mouseup', onmouseup);
     document.onkeydown = keyDown;
     document.onkeyup = keyUp;
     
@@ -132,8 +158,6 @@ async function main() {
     }
     gl.clearColor(1,1,1,1)
     gl.clear(gl.COLOR_BUFFER_BIT)
-    console.log('initialized')
-    
     
     var vert = await fetchShader('draw-vert.glsl')
     var frag = await fetchShader('draw-frag.glsl')
@@ -163,7 +187,6 @@ async function main() {
     
     // GLObject instantiation
     renderer = new Renderer()
-    console.log(objects)
     objects.forEach(object => {
         const glObject = new GLObject(0, shaderProgram, gl, object.type)
         glObject.setVertexArray(object.points)
