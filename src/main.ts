@@ -34,6 +34,8 @@ function changeType(type) {
     drawingType = type;
     points = []
     console.log(drawingType)
+    document.getElementById("currentDraw").innerText = type
+    main()
 }
 
 document.getElementById("lineButton").onclick = function() {
