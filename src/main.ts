@@ -8,6 +8,7 @@ canvas.width = 800
 canvas.height = 600
 var gl = canvas.getContext('webgl2')
 var renderer;
+var pixelTolerance = 5
 
 var points = []
 var pressedKeys = {}
@@ -46,6 +47,7 @@ document.getElementById("polygonButton").onclick = function() {
 }
 document.getElementById("clearButton").onclick = function() {
     objects = []
+    points= []
     renderer.clearObject()
     main()
 }
@@ -62,17 +64,6 @@ document.getElementById("loadButton").onclick = function() {
         alert('Failed to parse JSON')
     }
     main()
-}
-
-function inputGLCoordinates(event, canvas) {
-    var x = event.clientX,
-    y = event.clientY,
-    midX = canvas.width/2,
-    midY = canvas.height/2,
-    rect = event.target.getBoundingClientRect();
-    x = ((x - rect.left) - midX) / midX;
-    y = (midY - (y - rect.top)) / midY;
-    return {x:x,y:y};
 }
 
 function inputCanvasCoordinates(event, canvas) {
@@ -102,9 +93,15 @@ function onmousedown(event) {
                 points: points
             })
             points = []
-        } else if (drawingType === "square" && points.length == 4)  {
+        } else if (drawingType === "square" && points.length == 4) {
             objects.push({
                 type: 'square',
+                points: points
+            })
+            points = []
+        } else if (drawingType === "polygon" && points.length > 2 && Math.abs(points[0] - points[points.length - 2]) <= pixelTolerance && Math.abs(points[1] - points[points.length - 1]) <= pixelTolerance) { // first === last point
+            objects.push({
+                type: 'polygon',
                 points: points
             })
             points = []
@@ -174,6 +171,17 @@ async function main() {
         glObject.bind()
         renderer.addObject(glObject)
     });
+
+    for (var i = 0; i < points.length; i += 2) {
+        const glObject = new GLObject(0, shaderProgram, gl, "square")
+        var pointsVa = [points[i], points[i+1], points[i] - pixelTolerance, points[i+1] - pixelTolerance]
+        glObject.setVertexArray(pointsVa)
+        glObject.setPosition(0, 0)
+        glObject.setRotation(0)
+        glObject.setScale(1,1)
+        glObject.bind()
+        renderer.addObject(glObject)
+    }
 
     renderer.render()
 }
