@@ -15,12 +15,6 @@ class Renderer {
         this.count++
     }
 
-    removeObject(id: number) {
-        const idx = this.objectList.findIndex(obj => obj.id === id)
-        this.objectList.splice(idx, 1)
-        this.count--
-    }
-
     clearObject() {
         while (this.objectList.length) this.objectList.pop()
     }

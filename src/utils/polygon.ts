@@ -2,7 +2,6 @@ function onSegment(p: number[], q: number[], r: number[]) {
     return (q[0] <= Math.max(p[0], r[0]) && q[0] >= Math.min(p[0], r[0]) && q[1] <= Math.max(p[1], r[1]) && q[1] >= Math.min(p[1], r[1]))
 }
 
-
 // get orientation of points p, q and r
 // 0: p,q,r colinear
 // 1: clockwise
