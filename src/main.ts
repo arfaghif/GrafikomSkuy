@@ -35,7 +35,6 @@ var objects = [
 function changeType(type) {
     drawingType = type;
     points = []
-    console.log(drawingType)
     document.getElementById("currentDraw").innerText = type
     main()
 }
@@ -51,13 +50,13 @@ document.getElementById("polygonButton").onclick = function() {
 }
 document.getElementById("clearButton").onclick = function() {
     objects = []
-    points= []
+    points = []
     renderer.clearObject()
     main()
 }
 document.getElementById("saveButton").onclick = function() {
     let data = JSON.stringify(objects);
-    document.getElementById("textarea").innerText = data
+    document.getElementById("textarea").value = data
 
 }
 document.getElementById("loadButton").onclick = function() {
@@ -82,9 +81,35 @@ function inputCanvasCoordinates(event, canvas) {
 function onmousedown(event) {
     var point = inputCanvasCoordinates(event, canvas);
     for (var i = 0; i < objects.length; i++) {
-        for (var j = 0; j < objects[i].points.length; j += 2) {
-            if (Math.abs(objects[i].points[j] - point.x) <= pixelTolerance && Math.abs(objects[i].points[j + 1] - point.y) <= pixelTolerance) {
-                selectedPoint = [i, j]
+        if (objects[i].type === "polygon" || objects[i].type === "line") {
+            for (var j = 0; j < objects[i].points.length; j += 2) {
+                // polygon or line
+                if (Math.abs(objects[i].points[j] - point.x) <= pixelTolerance && Math.abs(objects[i].points[j + 1] - point.y) <= pixelTolerance) {
+                    selectedPoint = [i, j]
+                    break
+                }
+            }
+        } else {
+            var dist = Math.max(Math.abs(objects[i].points[2] - objects[i].points[0]), Math.abs(objects[i].points[3] - objects[i].points[1]))
+            var x1 = objects[i].points[0] - dist
+            var y1 = objects[i].points[1] - dist
+            var x2 = objects[i].points[0] + dist
+            var y2 = objects[i].points[1] + dist
+            // infer titik sudut
+            if (Math.abs(x1 - point.x) <= pixelTolerance && Math.abs(y1 - point.y) <= pixelTolerance) {
+                selectedPoint = [i, 0]
+                break
+            }
+            if (Math.abs(x1 - point.x) <= pixelTolerance && Math.abs(y2 - point.y) <= pixelTolerance) {
+                selectedPoint = [i, 0]
+                break
+            }
+            if (Math.abs(x2 - point.x) <= pixelTolerance && Math.abs(y1 - point.y) <= pixelTolerance) {
+                selectedPoint = [i, 0]
+                break
+            }
+            if (Math.abs(x2 - point.x) <= pixelTolerance && Math.abs(y2 - point.y) <= pixelTolerance) {
+                selectedPoint = [i, 0]
                 break
             }
         }
@@ -94,7 +119,6 @@ function onmousedown(event) {
         var point = inputCanvasCoordinates(event, canvas);
         points.push(point.x)
         points.push(point.y)
-        console.log(points)
         if (drawingType === "line" && points.length == 4) {
             objects.push({
                 type: 'line',
@@ -116,7 +140,7 @@ function onmousedown(event) {
             })
             points = []
         }
-        console.log(objects)
+        // console.log(objects)
         main()
     }
     mousePressed = true
@@ -130,9 +154,14 @@ function onmouseup(event) {
 function onmousemove(event) {
     if (mousePressed == true && selectedPoint[0] != -1) {   // if a point is selected
         var point = inputCanvasCoordinates(event, canvas);
-        objects[selectedPoint[0]].points[selectedPoint[1]] = point.x
-        objects[selectedPoint[0]].points[selectedPoint[1] + 1] = point.y
-        
+        if (objects[selectedPoint[0]].type === "line" || objects[selectedPoint[0]].type === "polygon") {
+            objects[selectedPoint[0]].points[selectedPoint[1]] = point.x
+            objects[selectedPoint[0]].points[selectedPoint[1] + 1] = point.y
+        } else {    // square
+            var dist = Math.max(Math.abs(point.x - objects[selectedPoint[0]].points[0]), Math.abs(point.y - objects[selectedPoint[0]].points[1]))
+            objects[selectedPoint[0]].points[2] = objects[selectedPoint[0]].points[0] + dist
+            objects[selectedPoint[0]].points[3] = objects[selectedPoint[0]].points[1] + dist
+        }
         main()
     }
 }
