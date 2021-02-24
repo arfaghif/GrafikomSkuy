@@ -95,7 +95,7 @@ function onmousedown(event) {
             var y1 = objects[i].points[1] - dist
             var x2 = objects[i].points[0] + dist
             var y2 = objects[i].points[1] + dist
-            // infer titik sudut
+            // infer titik sudut dari titik pusat dan distance, grab titik sudut
             if (Math.abs(x1 - point.x) <= pixelTolerance && Math.abs(y1 - point.y) <= pixelTolerance) {
                 selectedPoint = [i, 0]
                 break
@@ -155,9 +155,11 @@ function onmousemove(event) {
     if (mousePressed == true && selectedPoint[0] != -1) {   // if a point is selected
         var point = inputCanvasCoordinates(event, canvas);
         if (objects[selectedPoint[0]].type === "line" || objects[selectedPoint[0]].type === "polygon") {
+            // langsung replace point yang dipilih
             objects[selectedPoint[0]].points[selectedPoint[1]] = point.x
             objects[selectedPoint[0]].points[selectedPoint[1] + 1] = point.y
-        } else {    // square
+        } else {    // type square
+            // hitung ulang distance, replace point kedua pada square
             var dist = Math.max(Math.abs(point.x - objects[selectedPoint[0]].points[0]), Math.abs(point.y - objects[selectedPoint[0]].points[1]))
             objects[selectedPoint[0]].points[2] = objects[selectedPoint[0]].points[0] + dist
             objects[selectedPoint[0]].points[3] = objects[selectedPoint[0]].points[1] + dist

@@ -24,8 +24,6 @@ class GLObject {
             this.va = va;
         } else if (this.type === "square") {
             this.va = this.getSquareVa(va[0], va[1], va[2], va[3]);
-        } else if (this.type === "triangle") {
-            this.va = va;
         }
     }
     
@@ -102,9 +100,7 @@ class GLObject {
         gl.uniformMatrix3fv(uniformPos, false, this.projectionMat)
         gl.uniform4fv(uniformCol, [1.0, 0.0, 0.0, 1.0]) // for coloring
         gl.enableVertexAttribArray(vertexPos)
-        if (this.type === "triangle") {
-            gl.drawArrays(gl.TRIANGLES, 0, 2)
-        } else if (this.type === "line") {
+        if (this.type === "line") {
             gl.drawArrays(gl.LINES, 0, 2)
         } else if (this.type === "square") {
             gl.drawArrays(gl.TRIANGLES, 0, 6)
