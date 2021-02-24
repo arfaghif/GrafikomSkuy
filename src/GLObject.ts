@@ -10,6 +10,7 @@ class GLObject {
     public scale: [number, number];
     public gl: WebGL2RenderingContext;
     public projectionMat: number[];
+    public colorMat: number[];
     public type: string;
     public vbo;
     
@@ -43,6 +44,10 @@ class GLObject {
     setScale(x: number, y:number) {
         this.scale = [x,y];
         this.projectionMat = this.calcProjectionMatrix()
+    }
+
+    setColor(r: number, g: number, b: number, a: number) {
+        this.colorMat = [r/255, g/255, b/255, a/255]
     }
     
     
@@ -98,7 +103,7 @@ class GLObject {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo)
         gl.vertexAttribPointer(vertexPos, 2, gl.FLOAT, false, 0, 0)
         gl.uniformMatrix3fv(uniformPos, false, this.projectionMat)
-        gl.uniform4fv(uniformCol, [1.0, 0.0, 0.0, 1.0]) // for coloring
+        gl.uniform4fv(uniformCol, this.colorMat) // for coloring
         gl.enableVertexAttribArray(vertexPos)
         if (this.type === "line") {
             gl.drawArrays(gl.LINES, 0, 2)

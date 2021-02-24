@@ -15,20 +15,23 @@ var selectedPoint = [-1, -1]    // object index, point index * 2
 var points = []
 var pressedKeys = {}
 var drawingType = ""
+var currentColor = [0, 0, 0]
 var objects = [
     {
         type: 'square',
         points: [
             30, 30,
             10, 10
-        ]
+        ],
+        color: [255, 0, 0, 255]
     },
     {
         type: 'line',
         points: [
             200, 200,
             220, 220,
-        ]
+        ],
+        color: [255, 0, 255, 255]
     }
 ]
 
@@ -68,6 +71,10 @@ document.getElementById("loadButton").onclick = function() {
     }
     main()
 }
+document.getElementById("colorInput").onchange = function() {
+    var value = this.value.match(/[A-Za-z0-9]{2}/g);
+    currentColor = value.map(function(v) { return parseInt(v, 16) });
+}
 
 function inputCanvasCoordinates(event, canvas) {
     var x = event.clientX,
@@ -80,55 +87,58 @@ function inputCanvasCoordinates(event, canvas) {
 
 function onmousedown(event) {
     var point = inputCanvasCoordinates(event, canvas);
-    for (var i = 0; i < objects.length; i++) {
-        if (objects[i].type === "polygon" || objects[i].type === "line") {
-            for (var j = 0; j < objects[i].points.length; j += 2) {
-                // polygon or line
-                if (Math.abs(objects[i].points[j] - point.x) <= pixelTolerance && Math.abs(objects[i].points[j + 1] - point.y) <= pixelTolerance) {
-                    selectedPoint = [i, j]
+    if (pressedKeys[16]) {  // hold shift to edit
+        for (var i = 0; i < objects.length; i++) {
+            if (objects[i].type === "polygon" || objects[i].type === "line") {
+                for (var j = 0; j < objects[i].points.length; j += 2) {
+                    // polygon or line
+                    if (Math.abs(objects[i].points[j] - point.x) <= pixelTolerance && Math.abs(objects[i].points[j + 1] - point.y) <= pixelTolerance) {
+                        selectedPoint = [i, j]
+                        break
+                    }
+                }
+            } else {
+                var dist = Math.max(Math.abs(objects[i].points[2] - objects[i].points[0]), Math.abs(objects[i].points[3] - objects[i].points[1]))
+                var x1 = objects[i].points[0] - dist
+                var y1 = objects[i].points[1] - dist
+                var x2 = objects[i].points[0] + dist
+                var y2 = objects[i].points[1] + dist
+                // infer titik sudut dari titik pusat dan distance, grab titik sudut
+                if (Math.abs(x1 - point.x) <= pixelTolerance && Math.abs(y1 - point.y) <= pixelTolerance) {
+                    selectedPoint = [i, 0]
+                    break
+                }
+                if (Math.abs(x1 - point.x) <= pixelTolerance && Math.abs(y2 - point.y) <= pixelTolerance) {
+                    selectedPoint = [i, 0]
+                    break
+                }
+                if (Math.abs(x2 - point.x) <= pixelTolerance && Math.abs(y1 - point.y) <= pixelTolerance) {
+                    selectedPoint = [i, 0]
+                    break
+                }
+                if (Math.abs(x2 - point.x) <= pixelTolerance && Math.abs(y2 - point.y) <= pixelTolerance) {
+                    selectedPoint = [i, 0]
                     break
                 }
             }
-        } else {
-            var dist = Math.max(Math.abs(objects[i].points[2] - objects[i].points[0]), Math.abs(objects[i].points[3] - objects[i].points[1]))
-            var x1 = objects[i].points[0] - dist
-            var y1 = objects[i].points[1] - dist
-            var x2 = objects[i].points[0] + dist
-            var y2 = objects[i].points[1] + dist
-            // infer titik sudut dari titik pusat dan distance, grab titik sudut
-            if (Math.abs(x1 - point.x) <= pixelTolerance && Math.abs(y1 - point.y) <= pixelTolerance) {
-                selectedPoint = [i, 0]
-                break
-            }
-            if (Math.abs(x1 - point.x) <= pixelTolerance && Math.abs(y2 - point.y) <= pixelTolerance) {
-                selectedPoint = [i, 0]
-                break
-            }
-            if (Math.abs(x2 - point.x) <= pixelTolerance && Math.abs(y1 - point.y) <= pixelTolerance) {
-                selectedPoint = [i, 0]
-                break
-            }
-            if (Math.abs(x2 - point.x) <= pixelTolerance && Math.abs(y2 - point.y) <= pixelTolerance) {
-                selectedPoint = [i, 0]
-                break
-            }
+            if (selectedPoint[0] != -1) break
         }
-        if (selectedPoint[0] != -1) break
     }
     if (selectedPoint[0] == -1) {
-        var point = inputCanvasCoordinates(event, canvas);
         points.push(point.x)
         points.push(point.y)
         if (drawingType === "line" && points.length == 4) {
             objects.push({
                 type: 'line',
-                points: points
+                points: points,
+                color: [currentColor[0], currentColor[1], currentColor[2], 255]
             })
             points = []
         } else if (drawingType === "square" && points.length == 4) {
             objects.push({
                 type: 'square',
-                points: points
+                points: points,
+                color: [currentColor[0], currentColor[1], currentColor[2], 255]
             })
             points = []
         } else if (drawingType === "polygon" && points.length > 2 && Math.abs(points[0] - points[points.length - 2]) <= pixelTolerance && Math.abs(points[1] - points[points.length - 1]) <= pixelTolerance) { // first === last point
@@ -136,7 +146,8 @@ function onmousedown(event) {
             points.pop()    // remove 2 last points
             objects.push({
                 type: 'polygon',
-                points: points
+                points: points,
+                color: [currentColor[0], currentColor[1], currentColor[2], 255]
             })
             points = []
         }
@@ -224,6 +235,7 @@ async function main() {
         glObject.setPosition(0, 0)
         glObject.setRotation(0)
         glObject.setScale(1,1)
+        glObject.setColor(object.color[0], object.color[1], object.color[2], object.color[3])
         glObject.bind()
         renderer.addObject(glObject)
     });
@@ -235,6 +247,7 @@ async function main() {
         glObject.setPosition(0, 0)
         glObject.setRotation(0)
         glObject.setScale(1,1)
+        glObject.setColor(currentColor[0], currentColor[1], currentColor[2], 255)
         glObject.bind()
         renderer.addObject(glObject)
     }

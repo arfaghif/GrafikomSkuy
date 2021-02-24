@@ -96,6 +96,7 @@ canvas {
     <br>
     Currently drawing: <span id="currentDraw">points</span>
     <br>
+    <input type="color" id="colorInput">
     <button id="lineButton">Line</button>
     <button id="squareButton">Square</button>
     <button id="polygonButton">Polygon</button>
@@ -103,37 +104,38 @@ canvas {
     <button id="saveButton">Save</button>
     <button id="loadButton">Load</button>
     <div class="popup" onclick="myFunction()">Helper
-        <span class="popuptext" id="myPopup">
-           <b> Cara Menggambar Line: <br></b>
-            1. Klik tombol line <br>
-            2. Klik posisi pada canvas sebagai pangkal line<br>
-            3. Klik posisi pada canvas sebagai ujung line<br><br>
-            <b>Cara Menggambar Square: <br></b>
-            1. Klik tombol square <br>
-            2. Klik posisi pada canvas sebagai titik pusat square <br>
-            3. Klik posisi pada canvas sebagai ujung square <br> <br>
-            <b>Cara Menggambar Polygon: <br></b>
-            1. Klik titik pertama polygon<br>
-            2. Klik titik - titik selanjutnya pada polygon<br>
-            3. Untuk berhenti menggambar, klik titik pertama<br> <br>
-            <b>Cara memanjangkan/memendekkan line: <br></b>
-            1. Drag salah satu titik line<br><br>
-            <b>Cara mengubah panjang sisi square: <br></b>
-            1. Drag salah satu titik square<br><br>
-            <b>Cara mengubah polygon: <br></b>
-            1. Drag salah satu titik polygon<br><br>
-            <br>
-            <br>
-            <br>
-            << Klik Helper untuk menutup kembali
-        </span>
-        </div>
+      <span class="popuptext" id="myPopup">
+        <b> Cara Menggambar Line: <br></b>
+        1. Klik tombol line <br>
+        2. Klik posisi pada canvas sebagai pangkal line<br>
+        3. Klik posisi pada canvas sebagai ujung line<br><br>
+        <b>Cara Menggambar Square: <br></b>
+        1. Klik tombol square <br>
+        2. Klik posisi pada canvas sebagai titik pusat square <br>
+        3. Klik posisi pada canvas sebagai titik pada sisi square <br> <br>
+        <b>Cara Menggambar Polygon: <br></b>
+        1. Klik titik pertama polygon<br>
+        2. Klik titik - titik selanjutnya pada polygon<br>
+        3. Untuk berhenti menggambar, klik titik pertama<br> <br>
+        <b>Cara memanjangkan/memendekkan line: <br></b>
+        1. Hold shift
+        2. Drag salah satu titik line<br><br>
+        <b>Cara mengubah panjang sisi square: <br></b>
+        1. Hold shift
+        2. Drag salah satu titik square<br><br>
+        <b>Cara mengubah polygon: <br></b>
+        1. Hold shift
+        2. Drag salah satu titik polygon<br><br>
+        <br>
+        <br>
+        <br>
+        << Klik Helper untuk menutup kembali
+      </span>
+    </div>
     <br>
     To save/load, use this textbox below.
     <br>
     <textarea id="textarea" cols="30" rows="10"></textarea>
-
-</br>
 
 <script>
 
